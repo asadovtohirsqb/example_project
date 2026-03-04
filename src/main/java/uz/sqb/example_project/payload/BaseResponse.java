@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * Umumiy API javob strukturasini ta'minlovchi generic class.
- * Har qanday API dan qaytariladigan javob shu formatda bo'ladi.
+ * Har qanday endpointdan qaytariladigan javob shu formatda bo'ladi.
  *
  * @param <T> Qaytariladigan ma'lumot turi (masalan: OrderResponse, List<OrderResponse>, etc.)
  */
@@ -20,28 +20,28 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Standart API javob obyekti. Har qanday API dan qaytariladigan ma'lumot shu shaklda bo'ladi.")
+@Schema(description = "Standart API javob obyekti. Har qanday endpointdan qaytariladigan ma'lumot shu shaklda bo'ladi.")
 public class BaseResponse<T> {
 
     @Schema(description = "Operatsiya muvaffaqiyatli bo'lganligini bildiradi", example = "true")
     private boolean success;
 
     @Schema(description = "Muvaffaqiyatli bo'lsa qaytariladigan asosiy ma'lumot. Xato bo'lsa null bo'ladi",
-            nullable = true,
-            oneOf = {Object.class}) // generic bo'lgani uchun oneOf ishlatiladi
+            nullable = true)
     private T data;
 
-    @Schema(description = "Foydalanuvchiga ko'rsatiladigan xabar (muvaffaqiyat yoki xato haqida)",
+    @Schema(description = "Foydalanuvchiga ko'rsatiladigan asosiy xabar (muvaffaqiyat yoki xato haqida)",
             example = "Buyurtma muvaffaqiyatli yaratildi")
     private String message;
 
-    @Schema(description = "Xato holatida qo'shimcha ma'lumot (masalan error code yoki qisqa tafsilot). " +
-            "Production muhitda odatda bo'sh yoki minimal bo'ladi",
-            example = "Validation failed: name may not be blank",
+    @Schema(description = "Xato holatida batafsil xato ma'lumotlari. " +
+            "Production muhitda odatda minimal yoki bo'sh bo'ladi",
             nullable = true)
-    private String errorDetails;
+    private ErrorDto error;
 
-    // Statik factory metodlar (Swagger uchun o'zgartirish shart emas, lekin saqlaymiz)
+    // ────────────────────────────────────────────────
+    // Statik factory metodlar (qulaylik uchun)
+    // ────────────────────────────────────────────────
 
     public static <T> BaseResponse<T> success(T data, String message) {
         return BaseResponse.<T>builder()
@@ -63,12 +63,23 @@ public class BaseResponse<T> {
                 .build();
     }
 
-    public static <T> BaseResponse<T> error(String message, String errorDetails) {
+    public static <T> BaseResponse<T> error(String message, ErrorDto errorDetails) {
         return BaseResponse.<T>builder()
                 .success(false)
                 .data(null)
                 .message(message)
-                .errorDetails(errorDetails)
+                .error(errorDetails)
                 .build();
+    }
+
+    // Qo'shimcha qulay metod – xato yaratish uchun
+    public static <T> BaseResponse<T> error(String message, Integer errorCode, String errorPath, Object errorBody) {
+        ErrorDto errorDto = ErrorDto.builder()
+                .errorCode(errorCode)
+                .errorPath(errorPath)
+                .errorBody(errorBody)
+                .build();
+
+        return error(message, errorDto);
     }
 }
