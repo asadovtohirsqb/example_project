@@ -17,7 +17,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 )
         )
 )
-//check
 @SpringBootApplication
 public class ExampleProjectApplication {
 
