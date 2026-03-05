@@ -23,4 +23,4 @@ public class SherdorOrder extends Order{
     private String tariffType;
     private String cardNumber;
 }
-//172.25.43.214:2717
+//172.25.43.214:2717 - shina api
