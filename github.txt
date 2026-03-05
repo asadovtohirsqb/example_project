@@ -1,0 +1,12 @@
+-- config dan o`chirish
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+
+
+-- config ga qo`shish
+git config --global http.proxy http://172.25.42.77:808
+git config --global https.proxy http://172.25.42.77:808
+
+
+-- global config ni ko`rish
+git config --global --list
